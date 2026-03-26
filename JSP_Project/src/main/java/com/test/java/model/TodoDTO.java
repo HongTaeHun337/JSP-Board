@@ -27,6 +27,7 @@ private String name;
 private long progressDays;
 private long dday;
 private long percent;
+private String authority;
 
 	
 }

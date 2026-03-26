@@ -165,24 +165,24 @@
     <div class="info-row">
         <span class="info-label">등록일</span>
         <span class="info-value">${dto.regdate}</span> 
-    </div>
+	    </div>
+	
+	    <c:if test="${not empty dto.goal}">
+	        <div class="info-row">
+	            <span class="info-label">최종 목표</span>
+	            <span class="info-value">${dto.goal}</span>
+	        </div>
+	    </c:if>
+	</div>
 
-    <c:if test="${not empty dto.goal}">
-        <div class="info-row">
-            <span class="info-label">최종 목표</span>
-            <span class="info-value">${dto.goal}</span>
-        </div>
-    </c:if>
-</div>
-
-            <div class="form-group">
-                <h3 class="section-title">나의 다짐</h3>
-                <div class="detail-content">
-                    ${dto.detail}
-                </div>
-            </div>
+    <div class="form-group">
+		<h3 class="section-title">나의 다짐</h3>
+        <div class="detail-content">
+        	${dto.detail}
+		</div>
+	</div>
             <div class="progress-section">
-		<c:if test ="${dto.endtype == 1 }">
+		<c:if test ="${dto.endtype == '1' }">
            
    			 <div class="progress-header">
         <%-- 1. 퍼센트 수치 동적 적용 --%>
@@ -190,16 +190,7 @@
         
         <%-- 2. 설명 문구 동적 적용 --%>
         <div class="progress-desc">
-            <c:choose>
-                <c:when test="${dto.endtype == '1'}">
-                    <%-- 기간형: 전체 기간 대비 진행 현황 --%>
-                    오늘까지 전체 기간의 ${dto.percent}%가 지났습니다.
-                </c:when>
-                <c:otherwise>
-                    <%-- 목표형: 누적 기록 수 등을 활용 (현재는 진행일수 기준) --%>
-                    목표를 향해 ${dto.progressDays}일째 달려가는 중!
-                </c:otherwise>
-            </c:choose>
+           <div class="progress-desc">오늘까지 전체 기간의 ${dto.percent}%가 지났습니다.</div>
         </div>
     </div>
     
@@ -224,33 +215,45 @@
         </form>
 		
 		        <div class="record-list">
-		            <c:choose>
-		                <c:when test="${not empty hlist}">
-		                    <c:forEach items="${hlist}" var="history">
-		                        <div class="record-item">
-		                            <span class="record-item-date">${history.studydate}</span>
-		                            <span class="record-item-text">${history.detail}</span>
-		                            <span class="record-item-delete" onclick="location.href='historyDel.do?seq=${history.seq_plan_history}&pseq=${dto.seq_plan}'">삭제</span>
-		                        </div>
-		                    </c:forEach>
-		                </c:when>
-		                <c:otherwise>
-		                    <div class="record-item" style="justify-content: center; color: #adb5bd;">
-		                        아직 기록된 학습 내용이 없습니다. 첫 기록을 남겨보세요!
-		                    </div>
-		                </c:otherwise>
-		            </c:choose>
-		        </div>
+                    <c:choose>
+                        <c:when test="${not empty hlist}">
+                            <c:forEach items="${hlist}" var="history">
+                                <div class="record-item">
+                                    <span class="record-item-date">${history.studydate}</span>
+                                    <span class="record-item-text">${history.detail}</span>
+                                    <span class="record-item-delete" onclick="location.href='historyDel.do?seq=${history.seq_plan_history}&pseq=${dto.seq_plan}'">삭제</span>
+                                </div>
+                            </c:forEach>
+                        </c:when>
+                        <c:otherwise>
+                            <div class="record-item" style="justify-content: center; color: #adb5bd;">
+                                아직 기록된 학습 내용이 없습니다. 첫 기록을 남겨보세요!
+                            </div>
+                        </c:otherwise>
+                    </c:choose>
+                </div>
+                
+                <%-- 🌟 여기에 페이징 바 출력! --%>
+                ${pagebar}
+
+            </div>
 		    </div>
 		</div>	
 
-            <div class="btn-group">
-                <button type="button" class="btn btn-list" onclick="location.href='index.do'">목록으로</button>
-                <div class="right-btns">
-                    <button type="button" class="btn btn-edit">수정</button>
-                    <button type="button" class="btn btn-delete">삭제</button>
-                </div>
-            </div>
+    <div class="btn-group">
+		<button type="button" class="btn btn-list" onclick="location.href='index.do'">목록으로</button>
+			<div class="right-btns">
+				<%-- 🌟 2. 수정 버튼: 본인(세션 seq_user == 작성자 dto.seq_user)일 때만 --%>
+               	<c:if test="${sessionScope.seq_user == dto.seq_user}">
+              		<button type="button" class="btn btn-edit" onclick="location.href='edit.do?seq=${dto.seq_plan}'">수정</button>
+               	</c:if>
+
+            	<%-- 🌟 3. 삭제 버튼: 본인이거나 관리자일 때 --%>
+             	<c:if test="${sessionScope.seq_user == dto.seq_user or sessionScope.authority == '0'}">
+                  	<button type="button" class="btn btn-delete" onclick="if(confirm('정말 삭제하시겠습니까?')) location.href='delete.do?seq=${dto.seq_plan}'">삭제</button>
+           		</c:if>
+			</div>
+	</div>
 
         </main>
     </div>

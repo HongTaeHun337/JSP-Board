@@ -157,20 +157,54 @@ public class TodoService {
 	}
 
 	// 특정 계획에 달린 학습 기록 목록 가져오기
-    public List<RecordDTO> getHistoryList(String seq) {
+	// 🌟 1. 총 개수 세어오는 다리 추가!
+    public int getHistoryCount(String seq) {
+        return dao.getHistoryCount(seq);
+    }
+
+    // 🌟 2. 기존 메서드 삭제하고, 페이징용(begin, end 추가)으로 교체!
+    public List<RecordDTO> getHistoryList(String seq, int begin, int end) {
         
-        // DAO한테 일 시키기
-        List<RecordDTO> list = dao.getHistoryList(seq);
+        // DAO한테 페이징 된 데이터 가져오라고 시키기
+        List<RecordDTO> list = dao.getHistoryList(seq, begin, end);
         
-        // 🌟 날짜 가공 (기록 날짜도 '2026.03.25.' 형식으로 예쁘게 바꾸기)
-        for (RecordDTO rdto : list) {
-            if (rdto.getStudydate() != null) {
-                // DB에서 가져온 날짜 형식을 입맛에 맞게 가공 (예: yyyy-MM-dd -> yyyy.MM.dd.)
-                String date = rdto.getStudydate().substring(0, 10).replace("-", ".");
-                rdto.setStudydate(date);
+        // 날짜 가공 (기존에 네가 짠 예쁜 날짜 포맷 로직 그대로 유지)
+        if (list != null) {
+            for (RecordDTO rdto : list) {
+                if (rdto.getStudydate() != null) {
+                    String date = rdto.getStudydate().substring(0, 10).replace("-", ".");
+                    rdto.setStudydate(date);
+                }
             }
         }
         
         return list;
     }
+
+	public int addHistory(RecordDTO dto) {
+		
+		TodoDAO dao = new TodoDAO();
+		
+	    return dao.addHistory(dto);
+	}
+
+	public int delHistory(String seq) {
+		
+		TodoDAO dao = new TodoDAO();
+	    return dao.delHistory(seq);
+		
+	}
+
+	public int delTodo(String seq) {
+		
+		TodoDAO dao = new TodoDAO();
+		
+	    return dao.delTodo(seq);
+		
+	}
+
+	public int editTodo(TodoDTO dto) {
+		TodoDAO dao = new TodoDAO();
+	    return dao.editTodo(dto);
+	}
 }
